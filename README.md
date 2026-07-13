@@ -109,10 +109,3 @@ agentic-rag-doc-intelligence/
 └── tests/test_routing.py
 ```
 
-## Suggested paper set (finance/ML theme, ties into your DeltaView project)
-
-Search arXiv for 6-8 papers across: stock price prediction with deep learning,
-factor investing / multi-factor models, sentiment analysis for markets,
-algorithmic trading with reinforcement learning. Mixing sub-topics gives you
-genuine comparison queries to demo ("compare the LSTM paper's approach to
-the transformer paper's approach").
