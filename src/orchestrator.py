@@ -50,12 +50,7 @@ class DocumentIntelligenceAgent:
 
         # 4. Retrieve
         query_embedding = embed_text(query, task_type="retrieval_query")
-        results = self.vector_store.query(
-            query_embedding=query_embedding,
-            top_k=params.top_k,
-            where=params.where_filter,
-        )
-        sources = self._format_sources(results)
+        sources = self._retrieve(query_embedding, params, routing)
 
         # 5. Build prompt + generate
         history_text = memory_store.history_as_text(session_id)
@@ -75,6 +70,35 @@ class DocumentIntelligenceAgent:
             docs_searched=routing.target_doc_ids,
             sources=sources,
         )
+
+    def _retrieve(self, query_embedding: list[float], params, routing) -> list[dict]:
+        """Single-doc or no-doc-filter queries use one combined similarity
+        search as before. But when 2+ docs are targeted (comparison queries,
+        or a followup reusing 2+ docs from memory), a single combined query
+        can starve one doc entirely if its chunks score slightly lower on
+        similarity - the model then has nothing to say about that doc and
+        has to admit it found nothing, even though relevant chunks exist.
+        Fix: query each targeted doc separately with a floor on how many
+        chunks it's guaranteed, then merge. Every targeted doc is
+        guaranteed representation."""
+        if routing.target_doc_ids and len(routing.target_doc_ids) > 1:
+            per_doc_k = max(2, params.top_k // len(routing.target_doc_ids))
+            merged: list[dict] = []
+            for doc_id in routing.target_doc_ids:
+                results = self.vector_store.query(
+                    query_embedding=query_embedding,
+                    top_k=per_doc_k,
+                    where={"doc_id": doc_id},
+                )
+                merged.extend(self._format_sources(results))
+            return merged
+
+        results = self.vector_store.query(
+            query_embedding=query_embedding,
+            top_k=params.top_k,
+            where=params.where_filter,
+        )
+        return self._format_sources(results)
 
     @staticmethod
     def _format_sources(chroma_results) -> list[dict]:

@@ -1,6 +1,5 @@
 # Environment variables
 .env
-.env.*
 
 # Virtual environments
 venv/
@@ -12,6 +11,4 @@ __pycache__/
 
 # VS Code
 .vscode/
-
-# ChromaDB data (optional - recommended)
 data/processed/chroma_db/
