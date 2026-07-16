@@ -1,7 +1,7 @@
 # Agentic RAG Document Intelligence System
 
 🔗 **Live demo:** https://agentic-rag-doc-intelligence-8.streamlit.app
-🔗 **API:** https://agentic-rag-doc-intelligence.onrender.com/health
+
 
 > Note: both are hosted on free tiers and spin down after ~15 min of
 > inactivity. First request after idling can take 30-60s to wake up -
